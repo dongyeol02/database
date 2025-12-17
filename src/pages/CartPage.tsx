@@ -1,8 +1,10 @@
 // src/pages/CartPage.tsx
 import { useCart } from "../components/context/CartContext";
 import { dummyUserRewards } from "../mock/stamp";
-import type { UserReward } from "../type/Stamp";
-
+import type { UserReward } from "../type/stamp";
+{
+  /*수정중..!*/
+}
 type CreateOrderRequest = {
   cafe_id: number;
   items: {

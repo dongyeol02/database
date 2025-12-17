@@ -11,7 +11,7 @@ const dummyUser = {
   token: "dummy-jwt-token",
 };
 
-const isLoggedIn = !!dummyUser.token;
+const isLoggedIn = !!dummyUser.token; //더미 없애려면 null 넣으면 됨유
 
 const Navbar = () => {
   const isOwner = dummyUser.role === "owner";
@@ -42,7 +42,7 @@ const Navbar = () => {
           )}
 
           {/* 공통 메뉴 */}
-          <Link to="/orders" className={navbtnCss}>
+          <Link to="/orderHistory" className={navbtnCss}>
             <ScrollText />
           </Link>
           <Link to="/stamp" className={navbtnCss}>

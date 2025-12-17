@@ -1,5 +1,5 @@
 import { Coffee } from "lucide-react";
-import type { StampStatus, RewardPolicy } from "../../type/Stamp";
+import type { StampStatus, RewardPolicy } from "../../type/stamp";
 
 type Props = {
   stampStatus: StampStatus;

@@ -1,6 +1,6 @@
 // src/mocks/stamp.ts
 
-import type { StampStatus, RewardPolicy, UserReward } from "../type/Stamp";
+import type { StampStatus, RewardPolicy, UserReward } from "../type/stamp";
 
 export const dummyStampStatus: StampStatus = {
   total_stamps: 7,
