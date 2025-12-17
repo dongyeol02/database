@@ -1,6 +1,6 @@
 const Footer = () => {
   return (
-    <footer className="w-full border-t border-gray-200 bg-[#FFFBEd] mt-10">
+    <footer className="w-full border-t border-gray-200 bg-[#FFFBEd]">
       <div className="w-full px-10 mx-auto px-4 py-6 flex flex-col md:flex-row items-center justify-between gap-4">
         {/* 브랜드/카피라이트 */}
         <div className="text-center md:text-left">
