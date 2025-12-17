@@ -2,7 +2,9 @@
 import { useCart } from "../components/context/CartContext";
 import { dummyUserRewards } from "../mock/stamp";
 import type { UserReward } from "../type/Stamp";
-
+{
+  /*수정중..!*/
+}
 type CreateOrderRequest = {
   cafe_id: number;
   items: {
