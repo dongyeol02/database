@@ -1,14 +1,14 @@
-// src/pages/SignupPage.tsx
 import { useState } from "react";
 import { Mail, Lock, User, Phone, UserCircle2, Store } from "lucide-react";
 import type { SignupRequest } from "../type/auth";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import { signup } from "../apis/authApi";
 
 const SignupPage = () => {
+  const navigate = useNavigate();
   const [form, setForm] = useState<SignupRequest>({
     email: "",
     password: "",
-    confirmPassword: "",
     nickname: "",
     role: "customer",
     phone_number: "",
@@ -17,7 +17,6 @@ const SignupPage = () => {
   const [error, setError] = useState<{
     email?: string;
     password?: string;
-    confirmPassword?: string;
     nickname?: string;
     phone_number?: string;
     global?: string;
@@ -44,10 +43,9 @@ const SignupPage = () => {
     if (!form.password) nextError.password = "비밀번호를 입력해주세요.";
     else if (form.password.length < 6)
       nextError.password = "비밀번호는 최소 6자 이상이어야 합니다.";
-    if (!form.confirmPassword)
-      nextError.confirmPassword = "비밀번호를 다시 입력해주세요.";
-    else if (form.password !== form.confirmPassword)
-      nextError.confirmPassword = "비밀번호가 일치하지 않습니다.";
+
+    // 비밀번호 확인 검사 로직 삭제됨
+
     if (!form.nickname) nextError.nickname = "닉네임을 입력해주세요.";
     if (!form.phone_number) nextError.phone_number = "전화번호를 입력해주세요.";
 
@@ -61,25 +59,12 @@ const SignupPage = () => {
 
     setIsLoading(true);
     try {
-      const body: Omit<SignupRequest, "confirmPassword"> = {
-        email: form.email,
-        password: form.password,
-        nickname: form.nickname,
-        role: form.role,
-        phone_number: form.phone_number,
-      };
-
-      console.log("POST /auth/register payload:", body);
-
-      // TODO: 실제 API 붙일 때 사용
-      // const res = await fetch("/auth/register", {
-      //   method: "POST",
-      //   headers: { "Content-Type": "application/json" },
-      //   body: JSON.stringify(body),
-      // });
-      // if (!res.ok) throw new Error("회원가입에 실패했습니다.");
-      // const data: SignupResponse = await res.json();
-      // console.log("회원가입 성공:", data);
+      // 이제 payload를 만들 때 confirmPassword를 뺄 필요 없이 form 그대로 보내도 됨
+      console.log("POST /auth/register payload:", form);
+      const res = await signup(form);
+      console.log("회원가입 성공:", res);
+      alert("회원가입 성공");
+      navigate("/login");
     } catch (err) {
       console.log(err);
       setError((prev) => ({
@@ -93,7 +78,6 @@ const SignupPage = () => {
 
   return (
     <section className="w-full max-w-xl bg-white rounded-3xl shadow-xl px-10 py-10">
-      {/* 상단 헤더 */}
       <div className="flex flex-col mb-8">
         <h1 className="text-lg font-semibold text-[#111827] mb-1">회원가입</h1>
         <p className="text-xs text-gray-500">
@@ -124,7 +108,7 @@ const SignupPage = () => {
               placeholder="example@email.com"
               value={form.email}
               onChange={handleChange("email")}
-              className="flex-1 outline-none bg-transparent text-sm placeholder:text-gray-400"
+              className="flex-1 outline-none bg-transparent text-sm"
             />
           </div>
           {error.email && (
@@ -154,7 +138,7 @@ const SignupPage = () => {
               placeholder="최소 6자 이상"
               value={form.password}
               onChange={handleChange("password")}
-              className="flex-1 outline-none bg-transparent text-sm placeholder:text-gray-400"
+              className="flex-1 outline-none bg-transparent text-sm"
             />
           </div>
           {error.password && (
@@ -162,37 +146,7 @@ const SignupPage = () => {
           )}
         </div>
 
-        {/* 비밀번호 확인 */}
-        <div className="flex flex-col gap-1">
-          <label className="text-xs font-medium text-gray-700">
-            비밀번호 확인 <span className="text-red-500">*</span>
-          </label>
-          <div
-            className={
-              "flex items-center gap-2 border rounded-lg px-3 py-2 text-sm " +
-              (error.confirmPassword
-                ? "border-red-400 bg-red-50"
-                : "border-gray-200 bg-white")
-            }
-          >
-            <Lock
-              size={16}
-              className={
-                error.confirmPassword ? "text-red-400" : "text-gray-400"
-              }
-            />
-            <input
-              type="password"
-              placeholder="비밀번호를 다시 입력하세요"
-              value={form.confirmPassword}
-              onChange={handleChange("confirmPassword")}
-              className="flex-1 outline-none bg-transparent text-sm placeholder:text-gray-400"
-            />
-          </div>
-          {error.confirmPassword && (
-            <p className="text-[11px] text-red-500">{error.confirmPassword}</p>
-          )}
-        </div>
+        {/* 비밀번호 확인 필드가 있던 자리 - 삭제됨 */}
 
         {/* 닉네임 */}
         <div className="flex flex-col gap-1">
@@ -216,7 +170,7 @@ const SignupPage = () => {
               placeholder="앱에서 사용할 닉네임"
               value={form.nickname}
               onChange={handleChange("nickname")}
-              className="flex-1 outline-none bg-transparent text-sm placeholder:text-gray-400"
+              className="flex-1 outline-none bg-transparent text-sm"
             />
           </div>
           {error.nickname && (
@@ -246,7 +200,7 @@ const SignupPage = () => {
               placeholder="010-1234-5678"
               value={form.phone_number}
               onChange={handleChange("phone_number")}
-              className="flex-1 outline-none bg-transparent text-sm placeholder:text-gray-400"
+              className="flex-1 outline-none bg-transparent text-sm"
             />
           </div>
           {error.phone_number && (
@@ -278,7 +232,6 @@ const SignupPage = () => {
               />
               <span>고객</span>
             </button>
-
             <button
               type="button"
               onClick={() => handleRoleChange("owner")}
@@ -300,24 +253,19 @@ const SignupPage = () => {
           </div>
         </div>
 
-        {/* 글로벌 에러 */}
         {error.global && (
           <p className="text-[11px] text-red-500 mt-1">{error.global}</p>
         )}
 
-        {/* 회원가입 버튼 */}
         <button
           type="submit"
           disabled={isLoading}
-          className="mt-3 w-full bg-[#E17100] text-white text-sm font-semibold py-2.5 rounded-xl
-                     disabled:opacity-60 disabled:cursor-not-allowed
-                     transition-transform duration-150 hover:scale-[1.01] active:scale-95"
+          className="mt-3 w-full bg-[#E17100] text-white text-sm font-semibold py-2.5 rounded-xl disabled:opacity-60 disabled:cursor-not-allowed transition-transform duration-150 hover:scale-[1.01] active:scale-95"
         >
           {isLoading ? "가입 중..." : "회원가입"}
         </button>
       </form>
 
-      {/* 하단 - 로그인 이동 */}
       <div className="mt-6 text-center text-xs text-gray-500">
         이미 계정이 있으신가요?{" "}
         <Link
