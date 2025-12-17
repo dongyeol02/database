@@ -1,10 +1,13 @@
 // src/pages/LoginPage.tsx
 import { useState } from "react";
 import { Coffee, Mail, Lock } from "lucide-react";
-import type { LoginRequest } from "../type/auth";
-import { Link } from "react-router-dom";
+import type { LoginRequest, LoginResponse } from "../type/auth";
+import { Link, useNavigate } from "react-router-dom";
+import { login } from "../apis/authApi";
+import { useAuthStore } from "../store/useAuthStore";
 
 const LoginPage = () => {
+  const navigate = useNavigate();
   const [form, setForm] = useState<LoginRequest>({
     email: "",
     password: "",
@@ -15,7 +18,7 @@ const LoginPage = () => {
     global?: string;
   }>({});
   const [isLoading, setIsLoading] = useState(false);
-
+  const setAuth = useAuthStore((s) => s.setAuth);
   const handleChange =
     (field: keyof LoginRequest) => (e: React.ChangeEvent<HTMLInputElement>) => {
       setForm((prev) => ({ ...prev, [field]: e.target.value }));
@@ -40,19 +43,17 @@ const LoginPage = () => {
         email: form.email,
         password: form.password,
       };
-
-      console.log("POST /auth/login payload:", body);
-
-      // TODO: 실제 API 붙일 때 사용
-      // const res = await fetch("/auth/login", {
-      //   method: "POST",
-      //   headers: { "Content-Type": "application/json" },
-      //   body: JSON.stringify(body),
-      // });
-      // if (!res.ok) throw new Error("로그인에 실패했습니다.");
-      // const data: LoginResponse = await res.json();
-      // console.log("로그인 성공:", data);
-      // token, user 정보 전역 상태/스토리지에 저장 후 리다이렉트
+      const data: LoginResponse = await login(body); // ★ 래퍼 사용
+      // data: { role, token, nickname, user_id }
+      console.log(data);
+      alert("로그인 성공 ");
+      setAuth({
+        token: data.token,
+        role: data.role,
+        nickname: data.nickname,
+        user_id: data.user_id,
+      });
+      navigate("/");
     } catch (err) {
       console.log(err);
       setError((prev) => ({
