@@ -12,6 +12,8 @@ import SignUpPage from "../pages/SignUpPage";
 import OwnerCafeListPage from "../pages/OwnerCafeListPage";
 import OwnerCafeDetailPage from "../pages/OwnerCafeDetailPage";
 import EditMenuItemPage from "../pages/EditMenuPage";
+import AddMenuItemPage from "../pages/AddMenuItemPage";
+import CreateCafePage from "../pages/CreateCafePage";
 
 export const router = createBrowserRouter([
   {
@@ -29,6 +31,14 @@ export const router = createBrowserRouter([
       {
         path: "/ownercafedetail/:cafeId/menus/:itemId/edit",
         element: <EditMenuItemPage />,
+      },
+      {
+        path: "/ownercafedetail/:cafeId/menus/new",
+        element: <AddMenuItemPage />,
+      },
+      {
+        path: "/owner/cafes/new",
+        element: <CreateCafePage />,
       },
     ],
   },

@@ -57,7 +57,7 @@ const OwnerCafeListPage = () => {
 
           <Link
             className="flex items-center gap-1 px-3 py-2 bg-[#E17100] text-white font-semibold rounded-xl hover:bg-[#cf6400] transition-colors"
-            to={""}
+            to={"/owner/cafes/new"}
           >
             <Plus size={28} />새 카페 추가
           </Link>

@@ -1,40 +1,23 @@
-// src/pages/EditMenuItemPage.tsx
 import { useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
+import type { CreateMenuItemRequest } from "../type/store";
 
-// 임시: 더미 데이터에서 아이템 하나 찾아오기
-import { dummyCafeDetail } from "../mock/store";
-import type { MenuItem, UpdateMenuItemRequest } from "../type/store";
-
-const EditMenuItemPage = () => {
-  const { cafeId, itemId } = useParams<{ cafeId: string; itemId: string }>();
+const AddMenuItemPage = () => {
+  const { cafeId } = useParams<{ cafeId: string }>();
   const navigate = useNavigate();
 
-  // 실제로는 GET /cafes/:cafeId/items/:itemId 으로 가져와야 함
-  const originalItem: MenuItem | undefined = dummyCafeDetail.items.find(
-    (i) => i.item_id === Number(itemId)
-  );
-
-  const [form, setForm] = useState<UpdateMenuItemRequest>({
-    item_name: originalItem?.item_name ?? "",
-    price: originalItem?.price ?? 0,
-    description: originalItem?.description ?? "",
-    category: originalItem?.category ?? "",
-    item_image_url: originalItem?.item_image_url ?? "",
+  const [form, setForm] = useState<CreateMenuItemRequest>({
+    item_name: "",
+    price: 0,
+    description: "",
+    category: "",
+    item_image_url: "",
   });
 
   const [isLoading, setIsLoading] = useState(false);
 
-  if (!originalItem) {
-    return (
-      <main className="w-full min-h-screen bg-[#F5F5F7] flex items-center justify-center">
-        <p className="text-sm text-gray-500">메뉴 정보를 찾을 수 없습니다.</p>
-      </main>
-    );
-  }
-
   const handleChange =
-    (field: keyof UpdateMenuItemRequest) =>
+    (field: keyof CreateMenuItemRequest) =>
     (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
       const value =
         field === "price" ? Number(e.target.value || 0) : e.target.value;
@@ -43,11 +26,11 @@ const EditMenuItemPage = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setIsLoading(true);
+    if (!cafeId) return;
 
+    setIsLoading(true);
     try {
-      const payload: UpdateMenuItemRequest = {
-        // 수정한 값만 보내고 싶으면 여기서 빈 값 필터링
+      const payload: CreateMenuItemRequest = {
         item_name: form.item_name,
         price: form.price,
         description: form.description,
@@ -55,28 +38,22 @@ const EditMenuItemPage = () => {
         item_image_url: form.item_image_url,
       };
 
-      console.log(
-        "PUT /cafes/:cafeId/items/:itemId payload:",
-        cafeId,
-        itemId,
-        payload
-      );
+      console.log("POST /cafes/:cafeId/items payload:", cafeId, payload);
 
       // TODO: 실제 API 붙일 때 사용
-      // const res = await fetch(`/cafes/${cafeId}/items/${itemId}`, {
-      //   method: "PUT",
+      // const res = await fetch(`/cafes/${cafeId}/items`, {
+      //   method: "POST",
       //   headers: { "Content-Type": "application/json" },
       //   body: JSON.stringify(payload),
       // });
-      // if (!res.ok) throw new Error("메뉴 수정에 실패했습니다.");
-      // const data: UpdateMenuItemResponse = await res.json();
-      // console.log("메뉴 수정 성공:", data);
+      // if (!res.ok) throw new Error("메뉴 추가에 실패했습니다.");
+      // const data: CreateMenuItemResponse = await res.json();
+      // console.log("메뉴 추가 성공:", data);
 
-      // 성공 후 내 카페 상세로 이동
       navigate(`/ownercafedetail/${cafeId}`);
     } catch (err) {
       console.error(err);
-      alert("메뉴 수정 중 오류가 발생했습니다. 다시 시도해주세요.");
+      alert("메뉴 추가 중 오류가 발생했습니다. 다시 시도해주세요.");
     } finally {
       setIsLoading(false);
     }
@@ -85,10 +62,8 @@ const EditMenuItemPage = () => {
   return (
     <main className="w-full min-h-screen bg-[#F5F5F7] flex flex-col items-center justify-center py-8 px-4 md:px-20">
       <section className="w-1/2 aspect-5/4 mx-auto bg-white rounded-3xl shadow-md px-8 py-8">
-        <h1 className="text-lg font-semibold text-gray-900 mb-1">메뉴 수정</h1>
-        <p className="text-xs text-gray-500 mb-6">
-          {originalItem.item_name} 메뉴 정보를 수정합니다.
-        </p>
+        <h1 className="text-lg font-semibold text-gray-900 mb-1">메뉴 추가</h1>
+        <p className="text-xs text-gray-500 mb-6">새로운 메뉴를 등록합니다.</p>
 
         <form onSubmit={handleSubmit} className="flex flex-col gap-4">
           <div className="flex flex-col gap-1">
@@ -97,7 +72,7 @@ const EditMenuItemPage = () => {
             </label>
             <input
               type="text"
-              value={form.item_name ?? ""}
+              value={form.item_name}
               onChange={handleChange("item_name")}
               className="border border-gray-200 rounded-lg px-3 py-2 text-sm outline-none focus:border-[#E17100]"
             />
@@ -107,7 +82,7 @@ const EditMenuItemPage = () => {
             <label className="text-xs font-medium text-gray-700">가격</label>
             <input
               type="number"
-              value={form.price ?? 0}
+              value={form.price}
               onChange={handleChange("price")}
               className="border border-gray-200 rounded-lg px-3 py-2 text-sm outline-none focus:border-[#E17100]"
             />
@@ -117,7 +92,7 @@ const EditMenuItemPage = () => {
             <label className="text-xs font-medium text-gray-700">설명</label>
             <textarea
               rows={3}
-              value={form.description ?? ""}
+              value={form.description}
               onChange={handleChange("description")}
               className="border border-gray-200 rounded-lg px-3 py-2 text-sm outline-none focus:border-[#E17100] resize-none"
             />
@@ -129,7 +104,7 @@ const EditMenuItemPage = () => {
             </label>
             <input
               type="text"
-              value={form.category ?? ""}
+              value={form.category}
               onChange={handleChange("category")}
               className="border border-gray-200 rounded-lg px-3 py-2 text-sm outline-none focus:border-[#E17100]"
             />
@@ -141,7 +116,7 @@ const EditMenuItemPage = () => {
             </label>
             <input
               type="text"
-              value={form.item_image_url ?? ""}
+              value={form.item_image_url}
               onChange={handleChange("item_image_url")}
               className="border border-gray-200 rounded-lg px-3 py-2 text-sm outline-none focus:border-[#E17100]"
             />
@@ -152,7 +127,7 @@ const EditMenuItemPage = () => {
             disabled={isLoading}
             className="mt-2 w-full bg-[#E17100] text-white text-sm font-semibold py-2.5 rounded-xl disabled:opacity-60 disabled:cursor-not-allowed hover:bg-[#cf6400] transition-colors"
           >
-            {isLoading ? "수정 중..." : "수정 완료"}
+            {isLoading ? "추가 중..." : "메뉴 추가"}
           </button>
         </form>
       </section>
@@ -160,4 +135,4 @@ const EditMenuItemPage = () => {
   );
 };
 
-export default EditMenuItemPage;
+export default AddMenuItemPage;

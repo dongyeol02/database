@@ -51,3 +51,34 @@ export type UpdateMenuItemResponse = {
   item_id: number;
   cafe_id: number;
 };
+
+// 메뉴 추가
+export type CreateMenuItemRequest = {
+  item_name: string;
+  price: number;
+  description: string;
+  category: string;
+  item_image_url: string;
+};
+
+export type CreateMenuItemResponse = {
+  item_id: number;
+  cafe_id: number;
+  item_name: string;
+};
+
+// src/type/cafe.ts
+export type CreateCafeRequest = {
+  cafe_name: string;
+  address: string;
+  phone_number: string;
+  description: string;
+  operating_hours: string;
+  cafe_image_url: string;
+};
+
+export type CreateCafeResponse = {
+  cafe_id: number;
+  cafe_name: string;
+  owner_id: number;
+};

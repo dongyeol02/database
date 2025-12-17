@@ -4,7 +4,7 @@ import { dummyStores } from "../mock/store";
 
 const Homepage = () => {
   return (
-    <div className="w-full min-h-max pb-5">
+    <div className="w-full min-h-max pb-20">
       <Intro />
       <section className="w-full mt-10 px-10">
         <h2 className="text-2xl font-bold text-[#7B3306] mb-6">내 주변 카페</h2>

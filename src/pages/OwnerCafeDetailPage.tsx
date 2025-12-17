@@ -14,7 +14,10 @@ const OwnerCafeDetailPage = () => {
       <section className="w-full mx-auto flex flex-col gap-6">
         <CafeInfoCard cafe={cafe} />
         <CafeOrderListSection cafeId={cafe.cafe_id} />
-        <MenuManageSummary menuCount={cafe.items.length} />
+        <MenuManageSummary
+          menuCount={cafe.items.length}
+          cafeId={cafe.cafe_id}
+        />
         <MyCafeMenuSection cafe={cafe} />
       </section>
     </main>
