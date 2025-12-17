@@ -5,6 +5,7 @@ import AllStoresPage from "../pages/AllStorePage";
 import StampPage from "../pages/StampPage";
 import CafeDetailPage from "../pages/CafeDetailPage";
 import CartPage from "../pages/CartPage";
+import OrderHistoryPage from "../pages/OrderHistoryPage";
 
 export const router = createBrowserRouter([
   {
@@ -30,6 +31,10 @@ export const router = createBrowserRouter([
       {
         path: "/cart",
         element: <CartPage />,
+      },
+      {
+        path: "/orderHistory",
+        element: <OrderHistoryPage />,
       },
     ],
   },

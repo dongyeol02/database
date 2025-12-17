@@ -1,4 +1,4 @@
-import type { RewardPolicy } from "../../type/Stamp";
+import type { RewardPolicy } from "../../type/stamp";
 
 type Props = {
   rewardPolicy: RewardPolicy;

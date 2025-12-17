@@ -1,4 +1,4 @@
-import type { UserReward } from "../../type/Stamp";
+import type { UserReward } from "../../type/stamp";
 
 type Props = {
   activeRewards: UserReward[];

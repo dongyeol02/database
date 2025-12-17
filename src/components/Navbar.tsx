@@ -42,7 +42,7 @@ const Navbar = () => {
           )}
 
           {/* 공통 메뉴 */}
-          <Link to="/orders" className={navbtnCss}>
+          <Link to="/orderHistory" className={navbtnCss}>
             <ScrollText />
           </Link>
           <Link to="/stamp" className={navbtnCss}>
