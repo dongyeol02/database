@@ -27,3 +27,27 @@ export type CafeDetail = {
   cafe_image_url: string;
   items: MenuItem[];
 };
+
+export type OwnerCafe = {
+  cafe_id: number;
+  cafe_name: string;
+  address: string;
+  cafe_image_url: string;
+};
+
+// GET /owner/cafes 의 응답 타입
+export type OwnerCafeListResponse = OwnerCafe[];
+
+//수정
+export type UpdateMenuItemRequest = {
+  item_name?: string;
+  price?: number;
+  description?: string;
+  category?: string;
+  item_image_url?: string;
+};
+
+export type UpdateMenuItemResponse = {
+  item_id: number;
+  cafe_id: number;
+};

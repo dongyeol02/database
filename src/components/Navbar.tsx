@@ -55,7 +55,7 @@ const Navbar = () => {
           {/* 사장님 전용 버튼 */}
           {isOwner && (
             <Link
-              to="/my-store"
+              to="ownercafelist"
               className={
                 "bg-[#E17100] text-white text-sm font-semibold px-4 py-2 rounded-lg w-40 h-13 flex items-center justify-center gap-3 " +
                 primaryButtonHover

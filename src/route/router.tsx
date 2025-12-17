@@ -9,6 +9,9 @@ import CartPage from "../pages/CartPage";
 import OrderHistoryPage from "../pages/OrderHistoryPage";
 import LoginPage from "../pages/LoginPage";
 import SignUpPage from "../pages/SignUpPage";
+import OwnerCafeListPage from "../pages/OwnerCafeListPage";
+import OwnerCafeDetailPage from "../pages/OwnerCafeDetailPage";
+import EditMenuItemPage from "../pages/EditMenuPage";
 
 export const router = createBrowserRouter([
   {
@@ -21,6 +24,12 @@ export const router = createBrowserRouter([
       { path: "store/:id", element: <CafeDetailPage /> },
       { path: "cart", element: <CartPage /> },
       { path: "orderHistory", element: <OrderHistoryPage /> },
+      { path: "ownercafelist", element: <OwnerCafeListPage /> },
+      { path: "ownercafedetail/:id", element: <OwnerCafeDetailPage /> },
+      {
+        path: "/ownercafedetail/:cafeId/menus/:itemId/edit",
+        element: <EditMenuItemPage />,
+      },
     ],
   },
   {
@@ -28,6 +37,7 @@ export const router = createBrowserRouter([
     children: [
       { path: "/login", element: <LoginPage /> },
       { path: "/signup", element: <SignUpPage /> },
+
       // 나중에 /signup, /reset-password 등도 여기로
     ],
   },
