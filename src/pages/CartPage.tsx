@@ -2,18 +2,10 @@
 import { useEffect, useState } from "react";
 import { useCart } from "../components/context/CartContext";
 import type { UserReward } from "../type/stamp";
+import type { CreateOrderRequest } from "../type/order";
 import { fetchUserStamps } from "../apis/stampApi";
+import { createOrder } from "../apis/orderApi";
 import { useAuthStore } from "../store/useAuthStore";
-
-type CreateOrderRequest = {
-  cafe_id: number;
-  items: {
-    item_id: number;
-    quantity: number;
-    price_per_item: number;
-  }[];
-  user_reward_id?: number | null;
-};
 
 const CartPage = () => {
   const { state, dispatch } = useCart();
@@ -34,7 +26,7 @@ const CartPage = () => {
         const stampData = await fetchUserStamps(user_id);
         const usable = stampData.user_rewards.filter((r) => !r.is_used);
         setAvailableCoupons(usable);
-        console.log(stampData);
+        console.log("stampData:", stampData);
       } catch (err) {
         console.error(err);
       } finally {
@@ -68,7 +60,7 @@ const CartPage = () => {
   };
 
   const handleOrder = async () => {
-    if (!state.cafe_id || state.items.length === 0) return;
+    if (!state.cafe_id || state.items.length === 0 || !user_id) return;
 
     const body: CreateOrderRequest = {
       cafe_id: state.cafe_id,
@@ -80,8 +72,18 @@ const CartPage = () => {
       user_reward_id: state.user_reward_id ?? null,
     };
 
-    console.log("POST /orders payload:", body);
-    // TODO: 실제 주문 생성 API 호출
+    try {
+      console.log("POST /orders payload:", body);
+      const data = await createOrder(user_id, body);
+      console.log("주문 생성 성공:", data);
+
+      alert("주문이 완료되었습니다.");
+      dispatch({ type: "CLEAR" });
+      // TODO: 주문 완료 페이지나 주문 내역으로 이동
+    } catch (err) {
+      console.error("주문 생성 실패:", err);
+      alert("주문 생성 중 오류가 발생했습니다. 다시 시도해주세요.");
+    }
   };
 
   return (
