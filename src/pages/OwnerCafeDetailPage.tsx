@@ -13,7 +13,8 @@ const OwnerCafeDetailPage = () => {
     <main className="w-full min-h-screen bg-[#F5F5F7] py-8 px-6 md:px-20">
       <section className="w-full mx-auto flex flex-col gap-6">
         <CafeInfoCard cafe={cafe} />
-        <CafeOrderListSection cafeId={cafe.cafe_id} />
+
+        <CafeOrderListSection cafeId={1} />
         <MenuManageSummary
           menuCount={cafe.items.length}
           cafeId={cafe.cafe_id}

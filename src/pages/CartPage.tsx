@@ -1,34 +1,47 @@
 // src/pages/CartPage.tsx
+import { useEffect, useState } from "react";
 import { useCart } from "../components/context/CartContext";
-import { dummyUserRewards } from "../mock/stamp";
 import type { UserReward } from "../type/stamp";
-{
-  /*수정중..!*/
-}
-type CreateOrderRequest = {
-  cafe_id: number;
-  items: {
-    item_id: number;
-    quantity: number;
-    price_per_item: number;
-  }[];
-  user_reward_id?: number | null;
-};
+import type { CreateOrderRequest } from "../type/order";
+import { fetchUserStamps } from "../apis/stampApi";
+import { createOrder } from "../apis/orderApi";
+import { useAuthStore } from "../store/useAuthStore";
 
 const CartPage = () => {
   const { state, dispatch } = useCart();
+  const user_id = useAuthStore((s) => s.user_id);
 
-  // 사용 가능한 쿠폰만 필터링
-  const availableCoupons: UserReward[] = dummyUserRewards.filter(
-    (r) => !r.is_used
-  );
+  const [availableCoupons, setAvailableCoupons] = useState<UserReward[]>([]);
+  const [isLoadingCoupons, setIsLoadingCoupons] = useState(true);
+
+  // 쿠폰 불러오기
+  useEffect(() => {
+    if (!user_id) {
+      setIsLoadingCoupons(false);
+      return;
+    }
+
+    const load = async () => {
+      try {
+        const stampData = await fetchUserStamps(user_id);
+        const usable = stampData.user_rewards.filter((r) => !r.is_used);
+        setAvailableCoupons(usable);
+        console.log("stampData:", stampData);
+      } catch (err) {
+        console.error(err);
+      } finally {
+        setIsLoadingCoupons(false);
+      }
+    };
+
+    load();
+  }, [user_id]);
 
   const totalPrice = state.items.reduce(
     (sum, item) => sum + item.price * item.quantity,
     0
   );
 
-  // 현재 선택된 쿠폰
   const selectedCoupon = availableCoupons.find(
     (c) => c.user_reward_id === state.user_reward_id
   );
@@ -47,7 +60,7 @@ const CartPage = () => {
   };
 
   const handleOrder = async () => {
-    if (!state.cafe_id || state.items.length === 0) return;
+    if (!state.cafe_id || state.items.length === 0 || !user_id) return;
 
     const body: CreateOrderRequest = {
       cafe_id: state.cafe_id,
@@ -59,8 +72,18 @@ const CartPage = () => {
       user_reward_id: state.user_reward_id ?? null,
     };
 
-    console.log("POST /orders payload:", body);
-    // TODO: 실제 API 이기!
+    try {
+      console.log("POST /orders payload:", body);
+      const data = await createOrder(user_id, body);
+      console.log("주문 생성 성공:", data);
+
+      alert("주문이 완료되었습니다.");
+      dispatch({ type: "CLEAR" });
+      // TODO: 주문 완료 페이지나 주문 내역으로 이동
+    } catch (err) {
+      console.error("주문 생성 실패:", err);
+      alert("주문 생성 중 오류가 발생했습니다. 다시 시도해주세요.");
+    }
   };
 
   return (
@@ -133,7 +156,11 @@ const CartPage = () => {
               {/* 쿠폰 선택 영역 */}
               <div className="flex flex-col gap-2">
                 <span className="text-xs text-gray-500">사용 가능 쿠폰</span>
-                {availableCoupons.length === 0 ? (
+                {isLoadingCoupons ? (
+                  <p className="text-xs text-gray-400">
+                    쿠폰 정보를 불러오는 중입니다...
+                  </p>
+                ) : availableCoupons.length === 0 ? (
                   <p className="text-xs text-gray-400">
                     사용 가능한 쿠폰이 없습니다.
                   </p>
