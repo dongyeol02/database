@@ -1,37 +1,54 @@
-// src/pages/EditMenuItemPage.tsx
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-
-// 임시: 더미 데이터에서 아이템 하나 찾아오기
-import { dummyCafeDetail } from "../mock/store";
 import type { MenuItem, UpdateMenuItemRequest } from "../type/store";
+import { getCafeMenus, updateMenuItem } from "../apis/CafeApi";
+import { useAuthStore } from "../store/useAuthStore";
 
 const EditMenuItemPage = () => {
   const { cafeId, itemId } = useParams<{ cafeId: string; itemId: string }>();
   const navigate = useNavigate();
+  const { user_id } = useAuthStore();
 
-  // 실제로는 GET /cafes/:cafeId/items/:itemId 으로 가져와야 함
-  const originalItem: MenuItem | undefined = dummyCafeDetail.items.find(
-    (i) => i.item_id === Number(itemId)
-  );
-
+  const [originalItem, setOriginalItem] = useState<MenuItem | null>(null);
   const [form, setForm] = useState<UpdateMenuItemRequest>({
-    item_name: originalItem?.item_name ?? "",
-    price: originalItem?.price ?? 0,
-    description: originalItem?.description ?? "",
-    category: originalItem?.category ?? "",
-    item_image_url: originalItem?.item_image_url ?? "",
+    item_name: "",
+    price: 0,
+    description: "",
+    category: "",
+    item_image_url: "",
   });
-
   const [isLoading, setIsLoading] = useState(false);
+  const [isFetching, setIsFetching] = useState(true);
 
-  if (!originalItem) {
-    return (
-      <main className="w-full min-h-screen bg-[#F5F5F7] flex items-center justify-center">
-        <p className="text-sm text-gray-500">메뉴 정보를 찾을 수 없습니다.</p>
-      </main>
-    );
-  }
+  useEffect(() => {
+    if (!cafeId || !itemId) return;
+
+    const fetchItem = async () => {
+      try {
+        setIsFetching(true);
+        const items = await getCafeMenus(Number(cafeId)); // GET /cafes/{cafeId}/menus
+        const found = items.find((i) => i.item_id === Number(itemId)) ?? null;
+        setOriginalItem(found);
+
+        if (found) {
+          setForm({
+            item_name: found.item_name,
+            price: found.price,
+            description: found.description,
+            category: found.category,
+            item_image_url: found.item_image_url,
+          });
+        }
+      } catch (err) {
+        console.error(err);
+        alert("메뉴 정보를 불러오지 못했습니다.");
+      } finally {
+        setIsFetching(false);
+      }
+    };
+
+    fetchItem();
+  }, [cafeId, itemId]);
 
   const handleChange =
     (field: keyof UpdateMenuItemRequest) =>
@@ -43,11 +60,19 @@ const EditMenuItemPage = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!user_id) {
+      alert("로그인 정보가 없습니다.");
+      return;
+    }
+    if (!itemId) {
+      alert("메뉴 ID가 없습니다.");
+      return;
+    }
+
     setIsLoading(true);
 
     try {
       const payload: UpdateMenuItemRequest = {
-        // 수정한 값만 보내고 싶으면 여기서 빈 값 필터링
         item_name: form.item_name,
         price: form.price,
         description: form.description,
@@ -55,24 +80,9 @@ const EditMenuItemPage = () => {
         item_image_url: form.item_image_url,
       };
 
-      console.log(
-        "PUT /cafes/:cafeId/items/:itemId payload:",
-        cafeId,
-        itemId,
-        payload
-      );
+      const data = await updateMenuItem(user_id, Number(itemId), payload); // PUT /cafes/menus/{itemId}
+      console.log("메뉴 수정 성공:", data);
 
-      // TODO: 실제 API 붙일 때 사용
-      // const res = await fetch(`/cafes/${cafeId}/items/${itemId}`, {
-      //   method: "PUT",
-      //   headers: { "Content-Type": "application/json" },
-      //   body: JSON.stringify(payload),
-      // });
-      // if (!res.ok) throw new Error("메뉴 수정에 실패했습니다.");
-      // const data: UpdateMenuItemResponse = await res.json();
-      // console.log("메뉴 수정 성공:", data);
-
-      // 성공 후 내 카페 상세로 이동
       navigate(`/ownercafedetail/${cafeId}`);
     } catch (err) {
       console.error(err);
@@ -81,6 +91,22 @@ const EditMenuItemPage = () => {
       setIsLoading(false);
     }
   };
+
+  if (isFetching) {
+    return (
+      <main className="w-full min-h-screen bg-[#F5F5F7] flex items-center justify-center">
+        <p className="text-sm text-gray-500">메뉴 정보를 불러오는 중...</p>
+      </main>
+    );
+  }
+
+  if (!originalItem) {
+    return (
+      <main className="w-full min-h-screen bg-[#F5F5F7] flex items-center justify-center">
+        <p className="text-sm text-gray-500">메뉴 정보를 찾을 수 없습니다.</p>
+      </main>
+    );
+  }
 
   return (
     <main className="w-full min-h-screen bg-[#F5F5F7] flex flex-col items-center justify-center py-8 px-4 md:px-20">
