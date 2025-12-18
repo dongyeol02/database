@@ -1,10 +1,14 @@
+// src/pages/AddMenuItemPage.tsx
 import { useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import type { CreateMenuItemRequest } from "../type/store";
+import { createMenuItem } from "../apis/CafeApi";
+import { useAuthStore } from "../store/useAuthStore";
 
 const AddMenuItemPage = () => {
   const { cafeId } = useParams<{ cafeId: string }>();
   const navigate = useNavigate();
+  const { user_id } = useAuthStore();
 
   const [form, setForm] = useState<CreateMenuItemRequest>({
     item_name: "",
@@ -27,6 +31,10 @@ const AddMenuItemPage = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!cafeId) return;
+    if (!user_id) {
+      alert("로그인 정보가 없습니다.");
+      return;
+    }
 
     setIsLoading(true);
     try {
@@ -38,17 +46,8 @@ const AddMenuItemPage = () => {
         item_image_url: form.item_image_url,
       };
 
-      console.log("POST /cafes/:cafeId/items payload:", cafeId, payload);
-
-      // TODO: 실제 API 붙일 때 사용
-      // const res = await fetch(`/cafes/${cafeId}/items`, {
-      //   method: "POST",
-      //   headers: { "Content-Type": "application/json" },
-      //   body: JSON.stringify(payload),
-      // });
-      // if (!res.ok) throw new Error("메뉴 추가에 실패했습니다.");
-      // const data: CreateMenuItemResponse = await res.json();
-      // console.log("메뉴 추가 성공:", data);
+      const data = await createMenuItem(user_id, Number(cafeId), payload);
+      console.log("메뉴 추가 성공:", data);
 
       navigate(`/ownercafedetail/${cafeId}`);
     } catch (err) {

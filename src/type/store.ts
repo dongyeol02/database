@@ -1,4 +1,4 @@
-export type StoreCardProps = {
+export type CafeListItem = {
   cafe_id: number;
   cafe_name: string;
   address: string;
@@ -6,6 +6,9 @@ export type StoreCardProps = {
   operating_hours: string;
   cafe_image_url: string;
 };
+
+// StoreCard 컴포넌트 props (동일 구조)
+export type StoreCardProps = CafeListItem; // 동일 타입 재사용
 
 // type/cafe.ts
 export type MenuItem = {

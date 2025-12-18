@@ -3,8 +3,12 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import type { CreateCafeRequest } from "../type/store";
 
+import { useAuthStore } from "../store/useAuthStore";
+import { createCafe } from "../apis/CafeApi";
+
 const CreateCafePage = () => {
   const navigate = useNavigate();
+  const { user_id } = useAuthStore();
 
   const [form, setForm] = useState<CreateCafeRequest>({
     cafe_name: "",
@@ -26,6 +30,11 @@ const CreateCafePage = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!user_id) {
+      alert("로그인 정보가 없습니다.");
+      return;
+    }
+
     setIsLoading(true);
 
     try {
@@ -38,24 +47,10 @@ const CreateCafePage = () => {
         cafe_image_url: form.cafe_image_url,
       };
 
-      console.log("POST /cafes payload:", payload);
+      const data = await createCafe(user_id, payload);
+      console.log("카페 등록 성공:", data);
 
-      // TODO: 실제 API 붙일 때 사용
-      // const token = localStorage.getItem("access_token");
-      // const res = await fetch("/cafes", {
-      //   method: "POST",
-      //   headers: {
-      //     "Content-Type": "application/json",
-      //     Authorization: `Bearer ${token}`,
-      //   },
-      //   body: JSON.stringify(payload),
-      // });
-      // if (!res.ok) throw new Error("카페 등록에 실패했습니다.");
-      // const data: CreateCafeResponse = await res.json();
-      // console.log("카페 등록 성공:", data);
-
-      // 예: 내 카페 목록으로 이동
-      navigate("/ownercafes");
+      navigate("/ownercafelist");
     } catch (err) {
       console.error(err);
       alert("카페 등록 중 오류가 발생했습니다. 다시 시도해주세요.");
@@ -66,7 +61,7 @@ const CreateCafePage = () => {
 
   return (
     <main className="w-full min-h-screen bg-[#F5F5F7] flex flex-col items-center justify-center py-8 px-4 md:px-20">
-      <section className="w-1/2 aspect-5/4 mx-auto bg-white rounded-3xl shadow-md px-8 py-8">
+      <section className="w-full max-w-xl mx-auto bg-white rounded-3xl shadow-md px-8 py-8">
         <h1 className="text-lg font-semibold text-gray-900 mb-1">카페 등록</h1>
         <p className="text-xs text-gray-500 mb-6">
           새로운 카페를 등록하고 메뉴를 관리해 보세요.
@@ -118,7 +113,7 @@ const CreateCafePage = () => {
               type="text"
               value={form.operating_hours}
               onChange={handleChange("operating_hours")}
-              placeholder="예: 매일 09:00 ~ 21:00"
+              placeholder="예: 평일 09:00 - 22:00 / 주말 10:00 - 21:00"
               className="border border-gray-200 rounded-lg px-3 py-2 text-sm outline-none focus:border-[#E17100]"
             />
           </div>

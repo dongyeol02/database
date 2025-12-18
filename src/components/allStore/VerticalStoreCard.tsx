@@ -12,7 +12,7 @@ const VerticalStoreCard = ({
 }: StoreCardProps) => {
   return (
     <article
-      className="w-full bg-white rounded-2xl shadow-md overflow-hidden
+      className="w-full bg-white rounded-2xl shadow-md overflow-hidden border-2 border-black/10
                  hover:shadow-xl transition-transform duration-150 hover:scale-[1.01] cursor-pointer"
     >
       <div className="flex flex-col md:flex-row">
@@ -34,7 +34,7 @@ const VerticalStoreCard = ({
 
           <div className="mt-3 flex gap-3">
             <Link
-              to={`/stores/${cafe_id}`}
+              to={`/store/${cafe_id}`}
               className={
                 "bg-[#E17100] w-40 text-white text-sm font-semibold px-4 py-2 rounded-lg flex items-center justify-center " +
                 primaryButtonHover
