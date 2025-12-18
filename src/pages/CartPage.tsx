@@ -1,10 +1,10 @@
 // src/pages/CartPage.tsx
+import { useEffect, useState } from "react";
 import { useCart } from "../components/context/CartContext";
-import { dummyUserRewards } from "../mock/stamp";
 import type { UserReward } from "../type/stamp";
-{
-  /*수정중..!*/
-}
+import { fetchUserStamps } from "../apis/stampApi";
+import { useAuthStore } from "../store/useAuthStore";
+
 type CreateOrderRequest = {
   cafe_id: number;
   items: {
@@ -17,18 +17,39 @@ type CreateOrderRequest = {
 
 const CartPage = () => {
   const { state, dispatch } = useCart();
+  const user_id = useAuthStore((s) => s.user_id);
 
-  // 사용 가능한 쿠폰만 필터링
-  const availableCoupons: UserReward[] = dummyUserRewards.filter(
-    (r) => !r.is_used
-  );
+  const [availableCoupons, setAvailableCoupons] = useState<UserReward[]>([]);
+  const [isLoadingCoupons, setIsLoadingCoupons] = useState(true);
+
+  // 쿠폰 불러오기
+  useEffect(() => {
+    if (!user_id) {
+      setIsLoadingCoupons(false);
+      return;
+    }
+
+    const load = async () => {
+      try {
+        const stampData = await fetchUserStamps(user_id);
+        const usable = stampData.user_rewards.filter((r) => !r.is_used);
+        setAvailableCoupons(usable);
+        console.log(stampData);
+      } catch (err) {
+        console.error(err);
+      } finally {
+        setIsLoadingCoupons(false);
+      }
+    };
+
+    load();
+  }, [user_id]);
 
   const totalPrice = state.items.reduce(
     (sum, item) => sum + item.price * item.quantity,
     0
   );
 
-  // 현재 선택된 쿠폰
   const selectedCoupon = availableCoupons.find(
     (c) => c.user_reward_id === state.user_reward_id
   );
@@ -60,7 +81,7 @@ const CartPage = () => {
     };
 
     console.log("POST /orders payload:", body);
-    // TODO: 실제 API 이기!
+    // TODO: 실제 주문 생성 API 호출
   };
 
   return (
@@ -133,7 +154,11 @@ const CartPage = () => {
               {/* 쿠폰 선택 영역 */}
               <div className="flex flex-col gap-2">
                 <span className="text-xs text-gray-500">사용 가능 쿠폰</span>
-                {availableCoupons.length === 0 ? (
+                {isLoadingCoupons ? (
+                  <p className="text-xs text-gray-400">
+                    쿠폰 정보를 불러오는 중입니다...
+                  </p>
+                ) : availableCoupons.length === 0 ? (
                   <p className="text-xs text-gray-400">
                     사용 가능한 쿠폰이 없습니다.
                   </p>
